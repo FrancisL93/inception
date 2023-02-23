@@ -19,5 +19,10 @@ This document is a System Administration related exercise.
 	- sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 	- sudo chmod +x /usr/local/bin/docker-compose
 - Install Make
-
-  
+	- sudo apt install make
+- Restart the vm in order to have docker run without sudo
+- Install Docker machine
+	- curl -L https://github.com/docker/machine/releases/download/v0.16.0/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine
+	- chmod +x /tmp/docker-machine
+	- sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
+- Try to access   
