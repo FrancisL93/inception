@@ -7,6 +7,7 @@ all: $(NAME)
 
 $(NAME):
 	@make build
+	@make up
 
 build:
 	@cd $S && docker-compose build
