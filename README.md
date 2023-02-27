@@ -25,4 +25,7 @@ This document is a System Administration related exercise.
 	- curl -L https://github.com/docker/machine/releases/download/v0.16.0/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine
 	- chmod +x /tmp/docker-machine
 	- sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
-- Try to access   
+- Checklist
+ - [ ] nginx container
+	- [ ] Use TLSv1.2
+	- [ ] Use TLSv1.3
