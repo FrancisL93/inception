@@ -1,37 +1,42 @@
-# Use the Nginx container we built earlier as the base image
-FROM alpine:3.16.0
+# Use Alpine Linux as the base image
+FROM alpine:3.16
 
-# Install PHP, PHP extensions, Nginx, and other dependencies
-RUN apk update && apk add \
-    php7 \
-    php7-fpm \
-    php7-mysqli \
-    php7-zlib \
-    php7-curl \
-    php7-mbstring \
-    php7-json \
-    php7-session \
-    nginx \
-    supervisor \
-    && rm -rf /var/cache/apk/*
+# Install required packages for WordPress and Apache
+RUN apk add --no-cache \
+    apache2 \
+    apache2-utils \
+    php8 \
+    php8-apache2 \
+    php8-json \
+    php8-mysqli \
+    php8-pdo \
+    php8-pdo_mysql \
+    php8-session \
+    curl \
+    tar \
+    gzip \
+    wget
 
-# Set the working directory to /usr/share/nginx/html
-WORKDIR /usr/share/nginx/html
+# Download and extract the latest version of WordPress
+RUN curl -O https://wordpress.org/latest.tar.gz && \
+    tar -xzvf latest.tar.gz && \
+    rm -f latest.tar.gz && \
+    rm -rf /var/www/localhost/htdocs && \
+    mv wordpress /var/www/localhost/htdocs
 
-# Copy the WordPress files into the container
-COPY wordpress /usr/share/nginx/html
+RUN apk add --no-cache curl mysql-client php8-phar php8-json php8-mbstring
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp
 
-# Copy the default configuration file for PHP-FPM
-COPY php-fpm.conf /etc/php7/php-fpm.conf
 
-# Copy the supervisor configuration file
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Set the working directory to /var/www/localhost/htdocs
+WORKDIR /var/www/localhost/htdocs
 
-# Expose port 80 to the outside world
+# Copy the custom WordPress configuration file into the container
+COPY wp-config.php .
+
+# Expose port 80 for Apache
 EXPOSE 80
 
-# Set the entrypoint to the WordPress setup script
-ENTRYPOINT ["/usr/share/nginx/html/wp-setup.sh"]
-
-# Start supervisord to manage PHP-FPM and Nginx processes
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start the Apache service when the container starts
+CMD ["httpd", "-DFOREGROUND"]
