@@ -30,18 +30,21 @@ services:
     networks:
       - wp_site
   nginx:
-    image: nginx:alpine
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     volumes:
-      - nginx:/etc/nginx/conf.d
       - /data/html:/var/www/html
     ports:
       - 8080:80
     links:
       - wordpress
+    restart: always
 
 volumes:
   db_data:
-  wordpress_data:
+  nginx:
 
 networks:
   wp_site:
