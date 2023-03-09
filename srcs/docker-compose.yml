@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb
+    env_file:
+      - .env
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - backend
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    build:
+      context: ./wordpress
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wordpress/wp-config.php:/var/www/html/wp-config.php
+      - ./wordpress/install-wp.sh:/var/www/html/install-wp.sh
+    networks:
+      - backend
+    ports:
+      - "8080:80"
+    restart: always
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - wordpress
+    image: nginx
+    env_file:
+      - .env
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - wordpress_data:/var/www/html
+    networks:
+      - backend
+    ports:
+      - "443:443"
+    restart: always
+
+networks:
+  backend:
+
+volumes:
+  mariadb_data:
+  wordpress_data:
